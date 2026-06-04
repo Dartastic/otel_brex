@@ -2,7 +2,6 @@
 // Copyright 2025-2026 Mindful Software LLC d/b/a Dartastic.io, All rights reserved.
 
 import 'package:dartastic_opentelemetry/dartastic_opentelemetry.dart';
-import 'package:dartastic_opentelemetry_api/dartastic_opentelemetry_api.dart';
 
 import 'otel_brex_suppression.dart';
 
@@ -54,54 +53,68 @@ Future<T> tracedBrex<T>({
   final t = tracer ?? OTel.tracerProvider().getTracer('otel_brex');
   final span = t.startSpan('brex $operation', kind: SpanKind.client);
   try {
-    span.setStringAttribute('rpc.system', 'brex');
+    span.addAttributes(
+        OTel.attributes([OTel.attributeString('rpc.system', 'brex')]));
     final r = await invoke();
     final res = r.result;
     if (res != null) {
       if (res.companyId != null) {
-        span.setStringAttribute('brex.company.id', res.companyId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('brex.company.id', res.companyId!)]));
       }
       if (res.userId != null) {
-        span.setStringAttribute('user.id', res.userId!);
+        span.addAttributes(
+            OTel.attributes([OTel.attributeString('user.id', res.userId!)]));
       }
       if (res.cardId != null) {
-        span.setStringAttribute('brex.card.id', res.cardId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('brex.card.id', res.cardId!)]));
       }
       if (res.accountId != null) {
-        span.setStringAttribute('brex.account.id', res.accountId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('brex.account.id', res.accountId!)]));
       }
       if (res.transactionId != null) {
-        span.setStringAttribute('brex.transaction.id', res.transactionId!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('brex.transaction.id', res.transactionId!)]));
       }
       if (res.amount != null) {
-        span.setDoubleAttribute('brex.amount', res.amount!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeDouble('brex.amount', res.amount!)]));
       }
       if (res.currency != null) {
-        span.setStringAttribute('brex.currency', res.currency!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('brex.currency', res.currency!)]));
       }
       if (res.merchantCategory != null) {
-        span.setStringAttribute(
-          'brex.merchant.category',
-          res.merchantCategory!,
-        );
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+            'brex.merchant.category',
+            res.merchantCategory!,
+          )
+        ]));
       }
       if (res.status != null) {
-        span.setStringAttribute('brex.status', res.status!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('brex.status', res.status!)]));
       }
       if (res.statusCode != null) {
-        span.setIntAttribute('http.response.status_code', res.statusCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeInt('http.response.status_code', res.statusCode!)]));
       }
       if (res.errorCode != null) {
-        span.setStringAttribute('brex.error.code', res.errorCode!);
+        span.addAttributes(OTel.attributes(
+            [OTel.attributeString('brex.error.code', res.errorCode!)]));
       }
-      final fail =
-          res.errorCode != null ||
+      final fail = res.errorCode != null ||
           (res.statusCode != null && res.statusCode! >= 400);
       if (fail) {
-        span.setStringAttribute(
-          ErrorResource.errorType.key,
-          res.errorCode ?? 'brex.error',
-        );
+        span.addAttributes(OTel.attributes([
+          OTel.attributeString(
+            ErrorResource.errorType.key,
+            res.errorCode ?? 'brex.error',
+          )
+        ]));
         span.setStatus(SpanStatusCode.Error, res.errorMessage);
       }
     }
